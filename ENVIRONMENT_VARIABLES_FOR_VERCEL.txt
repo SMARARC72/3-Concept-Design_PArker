@@ -25,9 +25,11 @@ VITE_KLAVIYO_PUBLIC_API_KEY=your-klaviyo-public-api-key
 VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 
 # ============================================
-# ANTHROPIC/CLAUDE AI (Replace with your key)
+# KIMI AI (Replace with your Moonshot API key)
+# Get your API key from: https://platform.moonshot.cn/
 # ============================================
-VITE_ANTHROPIC_API_KEY=your-anthropic-api-key
+VITE_KIMI_API_KEY=your-kimi-api-key
+VITE_KIMI_API_URL=https://api.moonshot.cn/v1/chat/completions
 
 # ============================================
 # APP CONFIGURATION
