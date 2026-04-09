@@ -9,7 +9,10 @@ import {
   LogOut, 
   Menu,
   X,
-  User
+  User,
+  CreditCard,
+  Award,
+  Gift
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,6 +21,9 @@ const navItems = [
   { path: '/account/orders', label: 'Orders', icon: ShoppingBag },
   { path: '/account/wishlist', label: 'Wishlist', icon: Heart },
   { path: '/account/addresses', label: 'Addresses', icon: MapPin },
+  { path: '/account/payment-methods', label: 'Payment', icon: CreditCard },
+  { path: '/account/points-rewards', label: 'Points & Rewards', icon: Award },
+  { path: '/account/gift-cards', label: 'Gift Cards', icon: Gift },
   { path: '/account/settings', label: 'Settings', icon: Settings },
 ];
 

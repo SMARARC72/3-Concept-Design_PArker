@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, ShoppingBag, Menu, X, ChevronDown, LogOut } from 'lucide-react';
+import { Search, User, ShoppingBag, Menu, X, ChevronDown, LogOut, Crown, Gift, Award } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+
 
 interface NavigationProps {
   onCartClick?: () => void;
@@ -17,6 +18,7 @@ const navLinks = [
   { name: 'Sale', href: '/collections/sale', hasDropdown: false, isHighlight: true },
   { name: 'Events', href: '/events', hasDropdown: false },
   { name: 'PJ Style Lounge', href: '/style-lounge', hasDropdown: false, isSpecial: true },
+  { name: 'Members', href: '/members', hasDropdown: false, isSpecial: true },
   { name: 'Our Story', href: '/our-story', hasDropdown: false },
 ];
 
@@ -266,11 +268,28 @@ export default function Navigation({ onCartClick }: NavigationProps) {
                           Wishlist
                         </Link>
                         <Link
-                          to="/account/settings"
-                          className="block px-4 py-2 text-sm text-pj-charcoal hover:bg-pj-cream transition-colors"
+                          to="/members"
+                          className="block px-4 py-2 text-sm text-pj-charcoal hover:bg-pj-cream transition-colors flex items-center gap-2"
                           onClick={() => setIsAccountDropdownOpen(false)}
                         >
-                          Settings
+                          <Crown className="w-4 h-4 text-pj-gold" />
+                          Members Only
+                        </Link>
+                        <Link
+                          to="/account/points-rewards"
+                          className="block px-4 py-2 text-sm text-pj-charcoal hover:bg-pj-cream transition-colors flex items-center gap-2"
+                          onClick={() => setIsAccountDropdownOpen(false)}
+                        >
+                          <Award className="w-4 h-4" />
+                          Points & Rewards
+                        </Link>
+                        <Link
+                          to="/account/gift-cards"
+                          className="block px-4 py-2 text-sm text-pj-charcoal hover:bg-pj-cream transition-colors flex items-center gap-2"
+                          onClick={() => setIsAccountDropdownOpen(false)}
+                        >
+                          <Gift className="w-4 h-4" />
+                          Gift Cards
                         </Link>
                         <div className="border-t border-gray-100 mt-2 pt-2">
                           <button

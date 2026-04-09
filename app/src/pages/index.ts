@@ -18,5 +18,11 @@ export {
   OrdersPage, 
   WishlistPage, 
   AddressesPage, 
-  SettingsPage 
+  SettingsPage,
+  PaymentMethodsPage,
+  PointsRewardsPage,
+  GiftCardsPage
 } from './account';
+
+// Members Pages
+export { MembersOnlyPage } from './members';

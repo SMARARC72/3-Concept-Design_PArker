@@ -4,3 +4,6 @@ export { OrdersPage } from './OrdersPage';
 export { WishlistPage } from './WishlistPage';
 export { AddressesPage } from './AddressesPage';
 export { SettingsPage } from './SettingsPage';
+export { PaymentMethodsPage } from './PaymentMethodsPage';
+export { PointsRewardsPage } from './PointsRewardsPage';
+export { GiftCardsPage } from './GiftCardsPage';

@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import Navigation from './sections/Navigation';
 import Footer from './sections/Footer';
 import CartDrawer from './components/CartDrawer';
@@ -11,6 +13,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { CartProvider, useCart } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { ChatProvider } from './context/ChatContext';
+import { GamificationProvider } from './context/GamificationContext';
 
 // Public Pages
 import { 
@@ -31,10 +34,19 @@ import {
   OrdersPage,
   WishlistPage,
   AddressesPage,
-  SettingsPage
+  SettingsPage,
+  PaymentMethodsPage,
+  PointsRewardsPage,
+  GiftCardsPage
 } from './pages';
 
+// Members Only Pages
+import { MembersOnlyPage } from './pages/members';
+
 gsap.registerPlugin(ScrollTrigger);
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 function AppContent() {
   const location = useLocation();
@@ -42,10 +54,7 @@ function AppContent() {
   const { isCartOpen, setIsCartOpen } = useCart();
 
   useEffect(() => {
-    // Refresh ScrollTrigger on route change
     ScrollTrigger.refresh();
-    
-    // Scroll to top on route change
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
@@ -75,6 +84,13 @@ function AppContent() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/our-story" element={<OurStoryPage />} />
           
+          {/* Members Only */}
+          <Route path="/members" element={
+            <ProtectedRoute>
+              <MembersOnlyPage />
+            </ProtectedRoute>
+          } />
+          
           {/* Collection Category Routes */}
           <Route path="/collections/brands" element={<CollectionPage />} />
           <Route path="/collections/occasions" element={<CollectionPage />} />
@@ -97,6 +113,9 @@ function AppContent() {
             <Route path="orders" element={<OrdersPage />} />
             <Route path="wishlist" element={<WishlistPage />} />
             <Route path="addresses" element={<AddressesPage />} />
+            <Route path="payment-methods" element={<PaymentMethodsPage />} />
+            <Route path="points-rewards" element={<PointsRewardsPage />} />
+            <Route path="gift-cards" element={<GiftCardsPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
           
@@ -114,15 +133,19 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <ChatProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </ChatProvider>
-      </CartProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <ChatProvider>
+            <GamificationProvider>
+              <Elements stripe={stripePromise}>
+                <AppContent />
+              </Elements>
+            </GamificationProvider>
+          </ChatProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
