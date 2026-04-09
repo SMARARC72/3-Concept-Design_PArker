@@ -13,24 +13,26 @@ import { AuthProvider } from './context/AuthContext';
 import { ChatProvider } from './context/ChatContext';
 
 // Public Pages
-import HomePage from './pages/HomePage';
-import ShopPage from './pages/ShopPage';
-import CollectionPage from './pages/CollectionPage';
-import ProductPage from './pages/ProductPage';
-import NotFoundPage from './pages/NotFoundPage';
-
-// Auth Pages
-import { LoginPage, SignUpPage, ForgotPasswordPage, ResetPasswordPage } from './pages/auth';
-
-// Account Pages
 import { 
-  AccountLayout, 
-  DashboardPage, 
-  OrdersPage, 
-  WishlistPage, 
-  AddressesPage, 
-  SettingsPage 
-} from './pages/account';
+  HomePage, 
+  ShopPage, 
+  CollectionPage, 
+  ProductPage, 
+  NotFoundPage,
+  StyleLoungePage,
+  EventsPage,
+  OurStoryPage,
+  LoginPage,
+  SignUpPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  AccountLayout,
+  DashboardPage,
+  OrdersPage,
+  WishlistPage,
+  AddressesPage,
+  SettingsPage
+} from './pages';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -68,6 +70,17 @@ function AppContent() {
           <Route path="/collections/:handle" element={<CollectionPage />} />
           <Route path="/products/:handle" element={<ProductPage />} />
           
+          {/* Content Pages */}
+          <Route path="/style-lounge" element={<StyleLoungePage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/our-story" element={<OurStoryPage />} />
+          
+          {/* Collection Category Routes */}
+          <Route path="/collections/brands" element={<CollectionPage />} />
+          <Route path="/collections/occasions" element={<CollectionPage />} />
+          <Route path="/collections/gifts" element={<CollectionPage />} />
+          <Route path="/collections/sale" element={<CollectionPage />} />
+          
           {/* Auth Routes */}
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/auth/signup" element={<SignUpPage />} />
@@ -87,7 +100,7 @@ function AppContent() {
             <Route path="settings" element={<SettingsPage />} />
           </Route>
           
-          {/* 404 */}
+          {/* 404 - Catch All */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
