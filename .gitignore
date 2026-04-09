@@ -1,0 +1,58 @@
+# ============================================
+# ParkerJoe .gitignore
+# ============================================
+
+# Environment Variables (NEVER commit these)
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# App environment files
+app/.env
+app/.env.local
+app/.env.production
+
+# Supabase
+.supabase/
+supabase/.temp/
+supabase/.env
+
+# Dependencies
+node_modules/
+app/node_modules/
+
+# Build outputs
+dist/
+app/dist/
+build/
+app/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+app/logs/
+
+# Cache
+.cache/
+app/.cache/
+
+# Testing
+coverage/
+app/coverage/
+
+# Misc
+*.tmp
+*.temp

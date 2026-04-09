@@ -1,0 +1,14 @@
+# Vercel ignore file
+.env
+.env.local
+.env.production
+node_modules/
+*.log
+.DS_Store
+.idea/
+.vscode/
+README.md
+MIGRATE-NOW.html
+RUN-MIGRATIONS.sql
+supabase/
+scripts/
