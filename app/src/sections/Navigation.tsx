@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 interface NavigationProps {
-  onCartClick: () => void;
+  onCartClick?: () => void;
 }
 
 const navLinks = [
-  { name: 'Shop', href: '#shop', hasDropdown: true },
+  { name: 'Shop', href: '/shop', hasDropdown: true },
   { name: 'Brands', href: '#brands', hasDropdown: true },
   { name: 'Occasions', href: '#occasions', hasDropdown: true },
   { name: 'Gifts', href: '#gifts', hasDropdown: false },
@@ -19,12 +20,12 @@ const navLinks = [
 ];
 
 const shopDropdownItems = [
-  { name: 'Apparel', image: '/category-apparel.jpg' },
-  { name: 'Shoes', image: '/category-shoes.jpg' },
-  { name: 'Accessories', image: '/category-accessories.jpg' },
-  { name: 'Dresswear', image: '/category-dresswear.jpg' },
-  { name: 'Western', image: '/category-western.jpg' },
-  { name: 'Toys & Books', image: '/category-gifts.jpg' },
+  { name: 'Apparel', handle: 'apparel', image: '/category-apparel.jpg' },
+  { name: 'Shoes', handle: 'shoes', image: '/category-shoes.jpg' },
+  { name: 'Accessories', handle: 'accessories', image: '/category-accessories.jpg' },
+  { name: 'Dresswear', handle: 'dresswear', image: '/category-dresswear.jpg' },
+  { name: 'Western', handle: 'western', image: '/category-western.jpg' },
+  { name: 'Toys & Books', handle: 'toys-books', image: '/category-gifts.jpg' },
 ];
 
 export default function Navigation({ onCartClick }: NavigationProps) {
@@ -36,6 +37,7 @@ export default function Navigation({ onCartClick }: NavigationProps) {
   const linksRef = useRef<HTMLDivElement>(null);
   const iconsRef = useRef<HTMLDivElement>(null);
   const { totalItems } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,6 +77,20 @@ export default function Navigation({ onCartClick }: NavigationProps) {
     }
   };
 
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('/')) {
+      navigate(href);
+    } else if (href.startsWith('#')) {
+      // Scroll to section on home page
+      navigate('/');
+      setTimeout(() => {
+        const element = document.querySelector(href);
+        element?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <>
       <nav
@@ -89,13 +105,13 @@ export default function Navigation({ onCartClick }: NavigationProps) {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div ref={logoRef} className="flex-shrink-0">
-              <a href="/" className="flex items-center">
+              <Link to="/" className="flex items-center">
                 <span className={`font-display text-2xl lg:text-3xl font-semibold tracking-wide transition-colors duration-300 ${
                   isScrolled ? 'text-pj-navy' : 'text-pj-navy'
                 }`}>
                   ParkerJoe
                 </span>
-              </a>
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
@@ -110,8 +126,8 @@ export default function Navigation({ onCartClick }: NavigationProps) {
                   onMouseEnter={() => handleLinkHover(link.name)}
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <a
-                    href={link.href}
+                  <button
+                    onClick={() => handleNavClick(link.href)}
                     className={`flex items-center text-sm font-medium tracking-wide transition-colors duration-300 ${
                       link.isHighlight
                         ? 'text-red-500 hover:text-red-600'
@@ -126,17 +142,18 @@ export default function Navigation({ onCartClick }: NavigationProps) {
                     {link.hasDropdown && (
                       <ChevronDown className="ml-1 w-4 h-4" />
                     )}
-                  </a>
+                  </button>
 
                   {/* Mega Menu Dropdown */}
                   {link.name === 'Shop' && activeDropdown === 'Shop' && (
                     <div className="absolute top-full left-0 mt-4 w-[600px] bg-white rounded-lg shadow-xl p-6 animate-fade-in">
                       <div className="grid grid-cols-3 gap-4">
                         {shopDropdownItems.map((item) => (
-                          <a
+                          <Link
                             key={item.name}
-                            href={`/collections/${item.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`}
+                            to={`/collections/${item.handle}`}
                             className="group"
+                            onClick={() => setActiveDropdown(null)}
                           >
                             <div className="aspect-square rounded-lg overflow-hidden mb-2">
                               <img
@@ -148,7 +165,7 @@ export default function Navigation({ onCartClick }: NavigationProps) {
                             <span className="text-sm font-medium text-pj-charcoal group-hover:text-pj-blue">
                               {item.name}
                             </span>
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -170,6 +187,7 @@ export default function Navigation({ onCartClick }: NavigationProps) {
                 <Search className="w-5 h-5" />
               </button>
               <button
+                onClick={() => navigate('/account')}
                 className={`p-2 rounded-full transition-colors duration-300 ${
                   isScrolled
                     ? 'hover:bg-pj-light-gray text-pj-charcoal'
@@ -232,22 +250,40 @@ export default function Navigation({ onCartClick }: NavigationProps) {
         >
           <div className="p-6 pt-20">
             <div className="space-y-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className={`block text-lg font-medium py-2 ${
-                    link.isHighlight
-                      ? 'text-red-500'
-                      : link.isSpecial
-                      ? 'text-pj-gold'
-                      : 'text-pj-charcoal'
-                  }`}
+              <Link
+                to="/shop"
+                className="block text-lg font-medium py-2 text-pj-charcoal"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Shop All
+              </Link>
+              {shopDropdownItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={`/collections/${item.handle}`}
+                  className="block text-base py-2 pl-4 text-pj-gray hover:text-pj-blue"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {link.name}
-                </a>
+                  {item.name}
+                </Link>
               ))}
+              <div className="border-t border-gray-100 pt-4 mt-4">
+                {navLinks.slice(1).map((link) => (
+                  <button
+                    key={link.name}
+                    onClick={() => handleNavClick(link.href)}
+                    className={`block w-full text-left text-lg font-medium py-2 ${
+                      link.isHighlight
+                        ? 'text-red-500'
+                        : link.isSpecial
+                        ? 'text-pj-gold'
+                        : 'text-pj-charcoal'
+                    }`}
+                  >
+                    {link.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

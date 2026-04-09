@@ -1,0 +1,45 @@
+# PARKERJOE ENVIRONMENT VARIABLES FOR VERCEL
+# Copy and paste these into Vercel Dashboard: Project Settings > Environment Variables
+# Or use the "Import .env File" feature
+
+# ============================================
+# SUPABASE (Required)
+# ============================================
+VITE_SUPABASE_URL=https://sqqocqjsonirxvgivupm.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_gQpBAKiw3b_Qcg4kZKtEdg_GP1k-8Og
+
+# ============================================
+# SHOPIFY (Replace with your store credentials)
+# ============================================
+VITE_SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
+VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN=your-storefront-access-token
+
+# ============================================
+# KLAVIYO (Replace with your key)
+# ============================================
+VITE_KLAVIYO_PUBLIC_API_KEY=your-klaviyo-public-api-key
+
+# ============================================
+# GOOGLE ANALYTICS (Replace with your ID)
+# ============================================
+VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# ============================================
+# ANTHROPIC/CLAUDE AI (Replace with your key)
+# ============================================
+VITE_ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# ============================================
+# APP CONFIGURATION
+# ============================================
+VITE_APP_NAME=ParkerJoe
+VITE_APP_URL=https://parkerjoe.vercel.app
+
+# ============================================
+# DEPLOYMENT SETTINGS (Vercel)
+# ============================================
+# Framework: Vite
+# Build Command: cd app && npm run build
+# Output Directory: app/dist
+# Install Command: cd app && npm install
+# Root Directory: ./

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 export interface CartItem {
-  id: string;
+  id: string | number;
   name: string;
   brand: string;
   price: number;
@@ -13,9 +13,11 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (id: string | number) => void;
+  updateQuantity: (id: string | number, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -25,6 +27,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const addItem = useCallback((newItem: Omit<CartItem, 'quantity'>) => {
     setItems(currentItems => {
@@ -42,13 +45,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       
       return [...currentItems, { ...newItem, quantity: 1 }];
     });
+    // Open cart when item is added
+    setIsCartOpen(true);
   }, []);
 
-  const removeItem = useCallback((id: string) => {
+  const removeItem = useCallback((id: string | number) => {
     setItems(currentItems => currentItems.filter(item => item.id !== id));
   }, []);
 
-  const updateQuantity = useCallback((id: string, quantity: number) => {
+  const updateQuantity = useCallback((id: string | number, quantity: number) => {
     if (quantity <= 0) {
       removeItem(id);
       return;
@@ -71,6 +76,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     <CartContext.Provider
       value={{
         items,
+        isCartOpen,
+        setIsCartOpen,
         addItem,
         removeItem,
         updateQuantity,

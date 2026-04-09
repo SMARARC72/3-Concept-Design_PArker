@@ -1,0 +1,10 @@
+Name,Value
+VITE_SUPABASE_URL,https://sqqocqjsonirxvgivupm.supabase.co
+VITE_SUPABASE_ANON_KEY,sb_publishable_gQpBAKiw3b_Qcg4kZKtEdg_GP1k-8Og
+VITE_SHOPIFY_STORE_DOMAIN,your-store.myshopify.com
+VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN,your-storefront-access-token
+VITE_KLAVIYO_PUBLIC_API_KEY,your-klaviyo-public-api-key
+VITE_GA4_MEASUREMENT_ID,G-XXXXXXXXXX
+VITE_ANTHROPIC_API_KEY,your-anthropic-api-key
+VITE_APP_NAME,ParkerJoe
+VITE_APP_URL,https://parkerjoe.vercel.app
