@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import React from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
@@ -27,6 +27,7 @@ class RootErrorBoundary extends React.Component<{children: React.ReactNode}, {ha
           <pre style={{background: '#f5f5f5', padding: '10px', borderRadius: '4px'}}>
             {this.state.error?.message}
           </pre>
+          <button onClick={() => window.location.reload()}>Refresh Page</button>
         </div>
       )
     }
@@ -34,19 +35,28 @@ class RootErrorBoundary extends React.Component<{children: React.ReactNode}, {ha
   }
 }
 
-// Import React for the error boundary
-import React from 'react'
-
 const rootElement = document.getElementById('root')
 
 if (!rootElement) {
   console.error('Root element not found!')
 } else {
-  createRoot(rootElement).render(
-    <StrictMode>
+  const root = createRoot(rootElement)
+  
+  // Wrap in try-catch for initialization errors
+  try {
+    root.render(
       <RootErrorBoundary>
         <App />
       </RootErrorBoundary>
-    </StrictMode>,
-  )
+    )
+  } catch (error) {
+    console.error('Failed to render app:', error)
+    rootElement.innerHTML = `
+      <div style="padding: 20px; font-family: sans-serif;">
+        <h1>Failed to load application</h1>
+        <p>Please check your browser extensions or try a different browser.</p>
+        <button onclick="window.location.reload()">Retry</button>
+      </div>
+    `
+  }
 }

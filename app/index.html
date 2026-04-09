@@ -4,9 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ParkerJoe - Premium Boys Clothing</title>
+    <style>
+      /* Prevent extension styling conflicts */
+      #root { position: relative; }
+      /* Hide elements injected by extensions that cause React errors */
+      [class*="grammarly"],
+      [class*="_advertisement_"],
+      [id*="grammarly"],
+      grammarly-desktop-integration {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Detect browser extensions that might interfere
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('removeChild')) {
+          console.warn('Browser extension may be interfering with the page. Try disabling extensions.');
+        }
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

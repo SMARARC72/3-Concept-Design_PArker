@@ -56,3 +56,4 @@ app/coverage/
 # Misc
 *.tmp
 *.temp
+.vercel
