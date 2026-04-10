@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { supabase } from '../services/supabaseApi';
 
 export interface User {
   id: string;
@@ -14,61 +15,125 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ error?: string }>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error?: string }>;
-  updatePassword: (newPassword: string) => Promise<{ error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback(async (email: string, _password: string): Promise<{ error?: string }> => {
-    // Simple mock login - accept any email
-    if (email) {
-      setUser({
-        id: 'usr_' + Date.now(),
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email!,
+            firstName: session.user.user_metadata?.first_name || '',
+            lastName: session.user.user_metadata?.last_name || '',
+          });
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          firstName: session.user.user_metadata?.first_name || '',
+          lastName: session.user.user_metadata?.last_name || '',
+        });
+        setIsAuthenticated(true);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        firstName: email.split('@')[0],
-        lastName: 'User'
+        password,
       });
-      setIsAuthenticated(true);
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email!,
+          firstName: data.user.user_metadata?.first_name || '',
+          lastName: data.user.user_metadata?.last_name || '',
+        });
+        setIsAuthenticated(true);
+      }
       return {};
+    } catch (error: any) {
+      return { error: error?.message || 'An unexpected error occurred' };
     }
-    return { error: 'Invalid credentials' };
   }, []);
 
   const signup = useCallback(async (
     email: string, 
-    _password: string, 
+    password: string, 
     firstName: string, 
     lastName: string
   ): Promise<{ error?: string }> => {
-    setUser({
-      id: 'usr_' + Date.now(),
-      email,
-      firstName,
-      lastName
-    });
-    setIsAuthenticated(true);
-    return {};
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+          },
+        },
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email!,
+          firstName,
+          lastName,
+        });
+        setIsAuthenticated(true);
+      }
+      return {};
+    } catch (error: any) {
+      return { error: error?.message || 'An unexpected error occurred' };
+    }
   }, []);
 
   const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setUser(null);
     setIsAuthenticated(false);
-  }, []);
-
-  const resetPassword = useCallback(async (_email: string): Promise<{ error?: string }> => {
-    return {};
-  }, []);
-
-  const updatePassword = useCallback(async (_newPassword: string): Promise<{ error?: string }> => {
-    return {};
   }, []);
 
   return (
@@ -79,8 +144,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login, 
       signup,
       logout,
-      resetPassword,
-      updatePassword,
     }}>
       {children}
     </AuthContext.Provider>
