@@ -183,6 +183,7 @@ function SignUpPage() {
     password: '',
   });
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (isAuthenticated) {
@@ -194,6 +195,7 @@ function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setMessage('');
 
     const result = await signup(
       formData.email,
@@ -204,6 +206,9 @@ function SignUpPage() {
 
     if (result.error) {
       setError(result.error);
+      setLoading(false);
+    } else if (result.needsEmailConfirmation) {
+      setMessage('Account created! Please check your email to confirm your account before logging in.');
       setLoading(false);
     } else {
       navigate('/account');
@@ -223,6 +228,18 @@ function SignUpPage() {
           borderRadius: '4px'
         }}>
           {error}
+        </div>
+      )}
+
+      {message && (
+        <div style={{ 
+          padding: '10px', 
+          background: '#efe', 
+          color: '#060',
+          marginBottom: '20px',
+          borderRadius: '4px'
+        }}>
+          {message}
         </div>
       )}
 

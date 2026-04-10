@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ error?: string }>;
-  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error?: string }>;
+  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error?: string; needsEmailConfirmation?: boolean }>;
   logout: () => Promise<void>;
 }
 
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string, 
     firstName: string, 
     lastName: string
-  ): Promise<{ error?: string }> => {
+  ): Promise<{ error?: string; needsEmailConfirmation?: boolean }> => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -116,15 +116,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data.user) {
-        setUser({
-          id: data.user.id,
-          email: data.user.email!,
-          firstName,
-          lastName,
-        });
-        setIsAuthenticated(true);
+        // Check if email confirmation is required
+        if (data.session) {
+          // Auto-confirmed (no email verification needed)
+          setUser({
+            id: data.user.id,
+            email: data.user.email!,
+            firstName,
+            lastName,
+          });
+          setIsAuthenticated(true);
+          return {};
+        } else {
+          // Email confirmation required - user created but not logged in
+          return { needsEmailConfirmation: true };
+        }
       }
-      return {};
+      return { error: 'Signup failed - no user data received' };
     } catch (error: any) {
       return { error: error?.message || 'An unexpected error occurred' };
     }
