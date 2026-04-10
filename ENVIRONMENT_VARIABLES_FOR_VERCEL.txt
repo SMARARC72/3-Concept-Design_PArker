@@ -25,10 +25,9 @@ VITE_KLAVIYO_PUBLIC_API_KEY=your-klaviyo-public-api-key
 VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 
 # ============================================
-# KIMI AI (Replace with your Moonshot API key)
-# Get your API key from: https://platform.moonshot.cn/
+# KIMI AI (Moonshot API)
 # ============================================
-VITE_KIMI_API_KEY=your-kimi-api-key
+VITE_KIMI_API_KEY=sk-3Q6ZZVZv6XbC6jzrVbiwMHQuJPMbLvtreHfCx309TjRZ00CP
 VITE_KIMI_API_URL=https://api.moonshot.cn/v1/chat/completions
 
 # ============================================

@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import { supabase } from '../services/supabaseApi';
+import { 
+  PJ_STYLIST_SYSTEM_PROMPT, 
+  CONVERSATION_STARTERS,
+  FALLBACK_RESPONSES 
+} from '../lib/pjStylistPrompt';
 
 interface ChatMessage {
   id: string;
@@ -25,48 +30,13 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 const KIMI_API_URL = import.meta.env.VITE_KIMI_API_URL || 'https://api.moonshot.cn/v1/chat/completions';
 const KIMI_API_KEY = import.meta.env.VITE_KIMI_API_KEY;
 
-// System prompt for PJ Stylist
-const SYSTEM_PROMPT = `You are PJ Stylist, a friendly and knowledgeable AI shopping assistant for ParkerJoe, a premium children's clothing boutique specializing in boys' apparel (sizes 2T-16).
-
-Your personality:
-- Warm, helpful, and conversational like a personal stylist
-- Knowledgeable about children's fashion, sizing, and fit
-- Understanding of parenting needs and children's comfort
-- Enthusiastic about classic, timeless styles with modern touches
-
-Key information about ParkerJoe:
-- Founded in 2019 in Austin, Texas
-- Curated selection of high-quality boys' clothing
-- Brands include: Properly Tied, J.Bailey, Southern Tide, Little English, Bailey Boys
-- Categories: Apparel, Shoes, Accessories, Dresswear, Western, Toys & Books
-- Size range: 2T through 16
-- Known for: Classic polo shirts, chino shorts, dresswear, casual play clothes
-
-Services you can help with:
-- Outfit recommendations for specific occasions (weddings, church, school, photos)
-- Size and fit guidance
-- Gift suggestions with age-appropriate options
-- Style advice for mixing and matching pieces
-- Information about current collections and trends
-- Order tracking and store information
-
-Important guidelines:
-- Always consider age-appropriateness and comfort for children
-- Ask clarifying questions about size, occasion, or preferences when needed
-- Be mindful of budget considerations
-- Emphasize quality and durability of products
-- If asked about inventory, direct customers to check the website or visit a store
-- For order-specific questions, suggest contacting customer service directly
-
-COPPA Compliance: You must not collect or store personal information from children under 13. If a child appears to be using the chat without parental supervision, gently suggest they ask a parent to continue the conversation.`;
-
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hi! I'm PJ Stylist, your personal shopping assistant. How can I help you find the perfect outfit today?",
+      content: CONVERSATION_STARTERS[Math.floor(Math.random() * CONVERSATION_STARTERS.length)],
       timestamp: new Date().toISOString()
     }
   ]);
@@ -80,7 +50,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages([{
       id: 'welcome',
       role: 'assistant',
-      content: "Hi! I'm PJ Stylist, your personal shopping assistant. How can I help you find the perfect outfit today?",
+      content: CONVERSATION_STARTERS[Math.floor(Math.random() * CONVERSATION_STARTERS.length)],
       timestamp: new Date().toISOString()
     }]);
     setSessionId(null);
@@ -91,7 +61,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     if (sessionId) return sessionId;
     
     try {
-      // Create session in Supabase
       const newSessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       await supabase.from('ai_conversations').insert({
@@ -110,6 +79,38 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
   }, [sessionId, user?.id]);
+
+  // Get contextual response based on message content
+  const getContextualFallback = (userMessage: string): string => {
+    const lowerMsg = userMessage.toLowerCase();
+    
+    if (lowerMsg.includes('size') || lowerMsg.includes('fit') || lowerMsg.includes('measurement')) {
+      return FALLBACK_RESPONSES.sizing[Math.floor(Math.random() * FALLBACK_RESPONSES.sizing.length)]
+        .replace('{brand}', 'Properly Tied')
+        .replace('{fit}', 'true to size');
+    }
+    
+    if (lowerMsg.includes('wedding') || lowerMsg.includes('ring bearer') || lowerMsg.includes('formal')) {
+      return FALLBACK_RESPONSES.wedding[Math.floor(Math.random() * FALLBACK_RESPONSES.wedding.length)];
+    }
+    
+    if (lowerMsg.includes('gift') || lowerMsg.includes('present')) {
+      return FALLBACK_RESPONSES.gift[Math.floor(Math.random() * FALLBACK_RESPONSES.gift.length)];
+    }
+    
+    if (lowerMsg.includes('outfit') || lowerMsg.includes('recommend') || lowerMsg.includes('suggest')) {
+      return FALLBACK_RESPONSES.outfitRequest[Math.floor(Math.random() * FALLBACK_RESPONSES.outfitRequest.length)];
+    }
+    
+    if (lowerMsg.includes('polo') || lowerMsg.includes('short') || lowerMsg.includes('shirt') || lowerMsg.includes('blazer')) {
+      return FALLBACK_RESPONSES.product[Math.floor(Math.random() * FALLBACK_RESPONSES.product.length)]
+        .replace('{product}', 'Classic Polo')
+        .replace('{material}', 'premium pima cotton')
+        .replace('{occasion}', 'school and special events');
+    }
+    
+    return FALLBACK_RESPONSES.default[Math.floor(Math.random() * FALLBACK_RESPONSES.default.length)];
+  };
 
   const sendMessage = useCallback(async (content: string) => {
     // Add user message immediately
@@ -139,24 +140,16 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Check if Kimi API is configured
-      if (!KIMI_API_KEY) {
-        // Fallback responses when API is not configured
-        await new Promise(r => setTimeout(r, 1000));
+      if (!KIMI_API_KEY || !KIMI_API_KEY.startsWith('sk-')) {
+        console.warn('Kimi API key not configured, using fallback responses');
+        await new Promise(r => setTimeout(r, 800));
         
-        const fallbackResponses = [
-          "I'd be happy to help you find the perfect outfit! What occasion are you shopping for?",
-          "Great question! For that age, I'd recommend checking out our size chart. Would you like me to guide you to it?",
-          "Those chino shorts are one of our bestsellers! They come in several colors and pair perfectly with our polo shirts.",
-          "For a wedding, I'd suggest our dresswear collection. The Properly Tied blazers are especially popular for special occasions.",
-          "I'd love to help you put together a complete outfit! What's his favorite color?",
-        ];
-        
-        const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+        const fallbackResponse = getContextualFallback(content);
         
         const assistantMsg: ChatMessage = {
           id: `msg_${Date.now() + 1}`,
           role: 'assistant',
-          content: randomResponse,
+          content: fallbackResponse,
           timestamp: new Date().toISOString()
         };
         
@@ -168,7 +161,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             p_session_id: currentSessionId,
             p_message: {
               role: 'assistant',
-              content: randomResponse,
+              content: fallbackResponse,
               timestamp: new Date().toISOString()
             }
           });
@@ -178,7 +171,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Call Kimi API
+      // Call Kimi API with full system prompt
       const response = await fetch(KIMI_API_URL, {
         method: 'POST',
         headers: {
@@ -186,10 +179,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           'Authorization': `Bearer ${KIMI_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'kimi-k2-0711-preview', // Latest Kimi model
+          model: 'kimi-k2-0711-preview',
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...messages.filter(m => m.id !== 'welcome').map(m => ({ role: m.role, content: m.content })),
+            { role: 'system', content: PJ_STYLIST_SYSTEM_PROMPT },
+            ...messages.filter(m => m.id !== 'welcome').map(m => ({ 
+              role: m.role, 
+              content: m.content 
+            })),
             { role: 'user', content }
           ],
           temperature: 0.7,
@@ -199,11 +195,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Kimi API error:', response.status, errorData);
         throw new Error(`Kimi API error: ${response.status}`);
       }
 
       const data = await response.json();
-      const assistantContent = data.choices[0]?.message?.content || "I'm sorry, I couldn't process that request. How else can I help you?";
+      const assistantContent = data.choices?.[0]?.message?.content || 
+        "I apologize, but I'm having trouble processing that. How else can I help you today?";
 
       const assistantMsg: ChatMessage = {
         id: `msg_${Date.now() + 1}`,
@@ -229,10 +228,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Chat error:', error);
       
+      // Use fallback on error
+      const fallbackResponse = getContextualFallback(content);
+      
       const errorMsg: ChatMessage = {
         id: `msg_${Date.now() + 1}`,
         role: 'assistant',
-        content: "I'm having trouble connecting right now. Please try again in a moment, or feel free to browse our collections!",
+        content: fallbackResponse,
         timestamp: new Date().toISOString()
       };
       
