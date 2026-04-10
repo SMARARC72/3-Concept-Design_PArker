@@ -81,7 +81,7 @@ function calculatePasswordStrength(password: string): PasswordStrength {
 
 export default function SignUpPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { signup, isAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -170,14 +170,18 @@ export default function SignUpPage() {
     setError(null);
 
     try {
-      // Simulate API call for registration
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Auto-login after successful registration
-      await login(data.email, data.password);
-      navigate('/');
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
+      const result = await signup(data.email, data.password, data.firstName, data.lastName);
+      
+      if (result.error) {
+        setError(result.error);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Signup successful - navigate to account
+      navigate('/account');
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }

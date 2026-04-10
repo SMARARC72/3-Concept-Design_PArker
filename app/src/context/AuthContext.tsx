@@ -40,15 +40,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session check error:', error);
+          setIsLoading(false);
+          return;
+        }
         
         if (session?.user) {
           // Fetch user profile from customer_profiles
-          const { data: profile } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('customer_profiles')
             .select('first_name, last_name')
             .eq('id', session.user.id)
             .single();
+
+          if (profileError) {
+            console.error('Profile fetch error:', profileError);
+          }
 
           setUser({
             id: session.user.id,
@@ -69,6 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      
       if (event === 'SIGNED_IN' && session?.user) {
         const { data: profile } = await supabase
           .from('customer_profiles')
@@ -83,9 +95,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           lastName: profile?.last_name || session.user.user_metadata?.last_name || '',
         });
         setIsAuthenticated(true);
+        setIsLoading(false);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setIsAuthenticated(false);
+        setIsLoading(false);
+      } else if (event === 'USER_UPDATED' && session?.user) {
+        // Handle user updates
+        setUser(prev => prev ? {
+          ...prev,
+          email: session.user.email!,
+        } : null);
       }
     });
 
@@ -101,10 +121,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        setIsLoading(false);
         return { error: error.message };
       }
 
-      if (data.user) {
+      if (data.user && data.session) {
+        // User is set by onAuthStateChange listener, but we can set it here for immediate feedback
         const { data: profile } = await supabase
           .from('customer_profiles')
           .select('first_name, last_name')
@@ -118,12 +140,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           lastName: profile?.last_name || data.user.user_metadata?.last_name || '',
         });
         setIsAuthenticated(true);
+        setIsLoading(false);
+        return {};
       }
-      return {};
-    } catch (error) {
-      return { error: 'An unexpected error occurred' };
-    } finally {
+      
       setIsLoading(false);
+      return { error: 'Login failed - no user data received' };
+    } catch (error: any) {
+      setIsLoading(false);
+      return { error: error?.message || 'An unexpected error occurred' };
     }
   }, []);
 
@@ -147,12 +172,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        setIsLoading(false);
         return { error: error.message };
       }
 
       if (data.user) {
         // Create customer profile
-        await supabase.from('customer_profiles').insert({
+        const { error: profileError } = await supabase.from('customer_profiles').insert({
           id: data.user.id,
           email: data.user.email,
           first_name: firstName,
@@ -160,25 +186,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           marketing_consent: false,
         });
 
-        setUser({
-          id: data.user.id,
-          email: data.user.email!,
-          firstName,
-          lastName,
-        });
-        setIsAuthenticated(true);
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
+
+        // If email confirmation is not required, sign in immediately
+        if (data.session) {
+          setUser({
+            id: data.user.id,
+            email: data.user.email!,
+            firstName,
+            lastName,
+          });
+          setIsAuthenticated(true);
+        }
+        
+        setIsLoading(false);
+        return {};
       }
-      return {};
-    } catch (error) {
-      return { error: 'An unexpected error occurred' };
-    } finally {
+      
       setIsLoading(false);
+      return { error: 'Signup failed - no user data received' };
+    } catch (error: any) {
+      setIsLoading(false);
+      return { error: error?.message || 'An unexpected error occurred' };
     }
   }, []);
 
   const logout = useCallback(async () => {
     setIsLoading(true);
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout error:', error);
+    }
     setUser(null);
     setIsAuthenticated(false);
     setIsLoading(false);
@@ -194,8 +234,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message };
       }
       return {};
-    } catch (error) {
-      return { error: 'An unexpected error occurred' };
+    } catch (error: any) {
+      return { error: error?.message || 'An unexpected error occurred' };
     }
   }, []);
 
@@ -209,8 +249,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message };
       }
       return {};
-    } catch (error) {
-      return { error: 'An unexpected error occurred' };
+    } catch (error: any) {
+      return { error: error?.message || 'An unexpected error occurred' };
     }
   }, []);
 

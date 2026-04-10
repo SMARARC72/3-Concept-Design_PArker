@@ -89,15 +89,25 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await login(data.email, data.password);
+      const result = await login(data.email, data.password);
+      
+      if (result.error) {
+        setError(result.error);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Login successful
       if (data.rememberMe) {
         localStorage.setItem('parkerjoe_remember_email', data.email);
       } else {
         localStorage.removeItem('parkerjoe_remember_email');
       }
-      navigate('/');
-    } catch (err) {
-      setError('Invalid email or password. Please try again.');
+      
+      // Navigate to account or home
+      navigate('/account');
+    } catch (err: any) {
+      setError(err?.message || 'Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
     }
