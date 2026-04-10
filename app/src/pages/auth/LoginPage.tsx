@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { gsap } from 'gsap';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -27,9 +26,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const {
     register,
@@ -52,36 +48,17 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, navigate]);
 
+  // Simple fade-in animation without complex GSAP
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      tl.fromTo(
-        containerRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 }
-      )
-        .fromTo(
-          logoRef.current,
-          { y: -30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6 },
-          '-=0.1'
-        )
-        .fromTo(
-          cardRef.current,
-          { y: 40, opacity: 0, scale: 0.95 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.7 },
-          '-=0.3'
-        )
-        .fromTo(
-          formRef.current?.children || [],
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.08 },
-          '-=0.4'
-        );
-    });
-
-    return () => ctx.revert();
+    if (containerRef.current) {
+      containerRef.current.style.opacity = '0';
+      setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.style.transition = 'opacity 0.3s ease';
+          containerRef.current.style.opacity = '1';
+        }
+      }, 50);
+    }
   }, []);
 
   const onSubmit = handleSubmit(async (data: LoginFormData) => {
@@ -119,7 +96,7 @@ export default function LoginPage() {
       className="min-h-screen bg-pj-cream flex flex-col items-center justify-center px-4 py-12"
     >
       {/* Logo */}
-      <div ref={logoRef} className="mb-8">
+      <div className="mb-8">
         <Link to="/" className="flex flex-col items-center">
           <span className="font-display text-4xl font-semibold text-pj-navy tracking-wide">
             ParkerJoe
@@ -132,7 +109,7 @@ export default function LoginPage() {
 
       {/* Login Card */}
       <div
-        ref={cardRef}
+
         className="w-full max-w-md bg-white rounded-xl shadow-lg border border-gray-100 p-8"
       >
         <div className="text-center mb-8">
@@ -145,14 +122,14 @@ export default function LoginPage() {
         </div>
 
         {/* Error Alert */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 animate-fade-in">
-            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
+        <div style={{ display: error ? 'block' : 'none' }} className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span>{error || ' '}</span>
+          </p>
+        </div>
 
-        <form ref={formRef} onSubmit={onSubmit} className="space-y-5">
+        <form onSubmit={onSubmit} className="space-y-5">
           {/* Email Field */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-pj-charcoal font-medium">
@@ -168,9 +145,9 @@ export default function LoginPage() {
                 {...register('email')}
               />
             </div>
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
+            <p className="text-sm text-red-500" style={{ visibility: errors.email ? 'visible' : 'hidden' }}>
+              {errors.email?.message || ' '}
+            </p>
           </div>
 
           {/* Password Field */}
@@ -199,9 +176,9 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
+            <p className="text-sm text-red-500" style={{ visibility: errors.password ? 'visible' : 'hidden' }}>
+              {errors.password?.message || ' '}
+            </p>
           </div>
 
           {/* Remember Me & Forgot Password */}
