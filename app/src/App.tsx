@@ -2,8 +2,6 @@ import { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
 import Navigation from './sections/Navigation';
 import Footer from './sections/Footer';
 import CartDrawer from './components/CartDrawer';
@@ -44,12 +42,6 @@ import {
 import { MembersOnlyPage } from './pages/members';
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Initialize Stripe - only if key is available
-const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = stripeKey && stripeKey.startsWith('pk_') 
-  ? loadStripe(stripeKey) 
-  : null;
 
 function AppContent() {
   const location = useLocation();
@@ -134,14 +126,6 @@ function AppContent() {
   );
 }
 
-// Wrapper to handle Stripe Elements conditionally
-function StripeWrapper({ children }: { children: React.ReactNode }) {
-  if (stripePromise) {
-    return <Elements stripe={stripePromise}>{children}</Elements>;
-  }
-  return <>{children}</>;
-}
-
 function App() {
   return (
     <BrowserRouter>
@@ -149,9 +133,7 @@ function App() {
         <CartProvider>
           <ChatProvider>
             <GamificationProvider>
-              <StripeWrapper>
-                <AppContent />
-              </StripeWrapper>
+              <AppContent />
             </GamificationProvider>
           </ChatProvider>
         </CartProvider>
