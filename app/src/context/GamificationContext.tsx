@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 
 // ==================== TYPES ====================
@@ -504,6 +504,10 @@ const REWARDS: Reward[] = [
   },
 ];
 
+function getEligibleTier(totalPointsEarned: number): Tier {
+  return [...TIERS].reverse().find((tier) => totalPointsEarned >= tier.minPoints) || TIERS[0];
+}
+
 const INITIAL_TRANSACTIONS: PointsTransaction[] = [
   {
     id: 'tx-001',
@@ -581,6 +585,8 @@ export function GamificationProvider({ children }: { children: React.ReactNode }
   // ==================== POINTS SYSTEM ====================
 
   const addPoints = useCallback((amount: number, description: string, metadata?: Record<string, unknown>) => {
+    let upgradedTierName: Tier['name'] | null = null;
+
     const newTransaction: PointsTransaction = {
       id: `tx-${Date.now()}`,
       type: 'earned',
@@ -590,16 +596,32 @@ export function GamificationProvider({ children }: { children: React.ReactNode }
       metadata,
     };
 
-    setUser(prev => ({
-      ...prev,
-      currentPoints: prev.currentPoints + amount,
-      totalPointsEarned: prev.totalPointsEarned + amount,
-      transactions: [newTransaction, ...prev.transactions],
-    }));
+    setUser(prev => {
+      const nextTotalPointsEarned = prev.totalPointsEarned + amount;
+      const eligibleTier = getEligibleTier(nextTotalPointsEarned);
+
+      if (eligibleTier.name !== prev.tier) {
+        upgradedTierName = eligibleTier.name;
+      }
+
+      return {
+        ...prev,
+        currentPoints: prev.currentPoints + amount,
+        totalPointsEarned: nextTotalPointsEarned,
+        tier: eligibleTier.name,
+        transactions: [newTransaction, ...prev.transactions],
+      };
+    });
 
     toast.success(`+${amount} points earned!`, {
       description,
     });
+
+    if (upgradedTierName) {
+      toast.success(`Tier Upgraded to ${upgradedTierName}!`, {
+        description: 'Enjoy your new benefits!',
+      });
+    }
   }, []);
 
   const spendPoints = useCallback((amount: number, description: string): boolean => {
@@ -679,17 +701,6 @@ export function GamificationProvider({ children }: { children: React.ReactNode }
     return Math.min(100, Math.max(0, (progress / range) * 100));
   }, [currentTier, nextTier, user.totalPointsEarned]);
 
-  // Check for tier upgrades - currently unused but kept for future implementation
-  const checkTierUpgrade = useCallback(() => {
-    const eligibleTier = [...TIERS].reverse().find(t => user.totalPointsEarned >= t.minPoints);
-    if (eligibleTier && eligibleTier.name !== user.tier) {
-      setUser(prev => ({ ...prev, tier: eligibleTier.name }));
-      toast.success(`Tier Upgraded to ${eligibleTier.name}!`, {
-        description: 'Enjoy your new benefits!',
-      });
-    }
-  }, [user.totalPointsEarned, user.tier]);
-
   // ==================== REWARDS SYSTEM ====================
 
   const availableRewards = useMemo(() => {
@@ -756,11 +767,6 @@ export function GamificationProvider({ children }: { children: React.ReactNode }
   }, [user.transactions]);
 
   // ==================== CONTEXT VALUE ====================
-
-  // Check tier upgrades when points change
-  useEffect(() => {
-    checkTierUpgrade();
-  }, [user.currentPoints, checkTierUpgrade]);
 
   const contextValue: GamificationContextType = {
     user,

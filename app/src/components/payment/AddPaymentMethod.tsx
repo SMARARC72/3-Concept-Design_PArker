@@ -40,6 +40,8 @@ const elementStyles = {
   },
 };
 
+const stripePromise = initializeStripe();
+
 function AddPaymentMethodForm({ customerId, onSuccess, onCancel }: AddPaymentMethodProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -493,12 +495,6 @@ function AddPaymentMethodForm({ customerId, onSuccess, onCancel }: AddPaymentMet
 
 // Wrapper component with Stripe Elements
 export function AddPaymentMethod(props: AddPaymentMethodProps) {
-  const [stripePromise, setStripePromise] = useState<ReturnType<typeof initializeStripe> | null>(null);
-
-  useEffect(() => {
-    setStripePromise(initializeStripe());
-  }, []);
-
   if (!stripePromise) {
     return (
       <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">

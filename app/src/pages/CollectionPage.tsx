@@ -20,7 +20,83 @@ const collectionData: Record<string, { name: string; description: string; image:
   dresswear: { name: 'Dresswear', description: 'Special occasion outfits', image: '/category-dresswear.jpg' },
   western: { name: 'Western', description: 'Rodeo-ready styles', image: '/category-western.jpg' },
   'toys-books': { name: 'Toys & Books', description: 'Fun and educational gifts', image: '/category-gifts.jpg' },
+  gifts: { name: 'Gifts', description: 'Thoughtful picks for birthdays, holidays, and milestone moments', image: '/category-gifts.jpg' },
+  sale: { name: 'Sale', description: 'Limited-time ParkerJoe favorites with boutique-worthy value', image: '/seasonal-rodeo.jpg' },
+  'new-arrivals': { name: 'New Arrivals', description: 'Freshly curated pieces newly added to the collection', image: '/hero-main.jpg' },
+  'best-sellers': { name: 'Best Sellers', description: 'Customer favorites that define the ParkerJoe point of view', image: '/founder-story.jpg' },
+  brands: { name: 'Brands', description: 'Explore the labels and makers carried inside the ParkerJoe assortment', image: '/founder-story.jpg' },
+  occasions: { name: 'Occasions', description: 'Shop curated looks by season, celebration, and event dress code', image: '/seasonal-rodeo.jpg' },
 };
+
+function titleCaseFromHandle(handle: string) {
+  return handle
+    .split('-')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
+function getCollectionImage(handle: string) {
+  const normalizedHandle = handle.toLowerCase();
+
+  if (normalizedHandle.includes('shoe') || normalizedHandle.includes('loafer') || normalizedHandle.includes('boot')) {
+    return '/category-shoes.jpg';
+  }
+
+  if (normalizedHandle.includes('western') || normalizedHandle.includes('rodeo')) {
+    return '/category-western.jpg';
+  }
+
+  if (normalizedHandle.includes('gift') || normalizedHandle.includes('birthday') || normalizedHandle.includes('holiday')) {
+    return '/category-gifts.jpg';
+  }
+
+  if (
+    normalizedHandle.includes('dress') ||
+    normalizedHandle.includes('wedding') ||
+    normalizedHandle.includes('formal') ||
+    normalizedHandle.includes('communion')
+  ) {
+    return '/category-dresswear.jpg';
+  }
+
+  if (
+    normalizedHandle.includes('brand') ||
+    normalizedHandle.includes('properly') ||
+    normalizedHandle.includes('tide') ||
+    normalizedHandle.includes('english') ||
+    normalizedHandle.includes('bailey') ||
+    normalizedHandle.includes('parkerjoe')
+  ) {
+    return '/founder-story.jpg';
+  }
+
+  if (normalizedHandle.includes('occasion') || normalizedHandle.includes('spring') || normalizedHandle.includes('school')) {
+    return '/seasonal-rodeo.jpg';
+  }
+
+  if (normalizedHandle.includes('accessor')) {
+    return '/category-accessories.jpg';
+  }
+
+  return '/category-apparel.jpg';
+}
+
+function buildCollection(handle: string) {
+  const predefinedCollection = collectionData[handle];
+
+  if (predefinedCollection) {
+    return predefinedCollection;
+  }
+
+  const readableName = titleCaseFromHandle(handle);
+
+  return {
+    name: readableName,
+    description: `Discover a curated ParkerJoe assortment for ${readableName.toLowerCase()}, styled for polished everyday wear and special occasions.`,
+    image: getCollectionImage(handle),
+  };
+}
 
 export default function CollectionPage() {
   const { handle } = useParams<{ handle: string }>();
@@ -28,10 +104,10 @@ export default function CollectionPage() {
   const [products] = useState(mockProducts);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const collection = handle ? collectionData[handle] : null;
+  const collection = handle ? buildCollection(handle) : null;
 
   useEffect(() => {
-    if (!collection) {
+    if (!handle) {
       navigate('/shop');
       return;
     }
@@ -48,7 +124,7 @@ export default function CollectionPage() {
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.3 }
     );
-  }, [collection, navigate]);
+  }, [handle, navigate]);
 
   if (!collection) return null;
 

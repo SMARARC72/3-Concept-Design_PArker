@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/services/supabaseApi';
 
 const resetPasswordSchema = z
   .object({
@@ -64,9 +65,6 @@ function calculatePasswordStrength(password: string): PasswordStrength {
 }
 
 export default function ResetPasswordPage() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,20 +102,46 @@ export default function ResetPasswordPage() {
 
   // Validate token on mount
   useEffect(() => {
-    const validateToken = async () => {
-      // Simulate token validation
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    let isActive = true;
 
-      // For demo purposes, consider any token valid except 'invalid'
-      if (!token || token === 'invalid') {
-        setIsValidToken(false);
-      } else {
-        setIsValidToken(true);
+    const validateToken = async () => {
+      try {
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          throw sessionError;
+        }
+
+        if (isActive) {
+          setIsValidToken(Boolean(session));
+        }
+      } catch {
+        if (isActive) {
+          setIsValidToken(false);
+        }
       }
     };
 
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isActive) return;
+
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        setIsValidToken(Boolean(session));
+      }
+    });
+
     validateToken();
-  }, [token]);
+
+    return () => {
+      isActive = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -162,18 +186,26 @@ export default function ResetPasswordPage() {
     }
   }, [isSuccess]);
 
-  const onSubmit = handleSubmit(async (_data: ResetPasswordFormData) => {
+  const onSubmit = handleSubmit(async (data: ResetPasswordFormData) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call to reset password
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: data.password,
+      });
 
-      // In production, this would call your reset password API with the token
+      if (updateError) {
+        throw updateError;
+      }
+
       setIsSuccess(true);
     } catch (err) {
-      setError('Something went wrong. Please try again or request a new reset link.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again or request a new reset link.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -193,7 +225,7 @@ export default function ResetPasswordPage() {
               ParkerJoe
             </span>
             <span className="text-sm text-pj-gray mt-1 tracking-widest uppercase">
-              Children&apos;s Boutique
+              Premium Boyswear
             </span>
           </Link>
         </div>
@@ -244,7 +276,7 @@ export default function ResetPasswordPage() {
             ParkerJoe
           </span>
           <span className="text-sm text-pj-gray mt-1 tracking-widest uppercase">
-            Children&apos;s Boutique
+            Premium Boyswear
           </span>
         </Link>
       </div>

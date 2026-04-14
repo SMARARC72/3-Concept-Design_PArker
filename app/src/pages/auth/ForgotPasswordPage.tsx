@@ -8,6 +8,7 @@ import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/services/supabaseApi';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -77,19 +78,23 @@ export default function ForgotPasswordPage() {
     }
   }, [isSuccess]);
 
-  const onSubmit = handleSubmit(async (_data: ForgotPasswordFormData) => {
+  const onSubmit = handleSubmit(async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const redirectBaseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${redirectBaseUrl}/auth/reset-password`,
+      });
 
-      // For demo purposes, we'll just show success
-      // In production, this would call your password reset API
+      if (resetError) {
+        throw resetError;
+      }
+
       setIsSuccess(true);
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +112,7 @@ export default function ForgotPasswordPage() {
             ParkerJoe
           </span>
           <span className="text-sm text-pj-gray mt-1 tracking-widest uppercase">
-            Children&apos;s Boutique
+            Premium Boyswear
           </span>
         </Link>
       </div>

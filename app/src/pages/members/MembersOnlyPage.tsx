@@ -233,6 +233,22 @@ const UPCOMING_RELEASES = [
   },
 ];
 
+const CountdownTimeUnit: React.FC<{ value: number; label: string }> = ({
+  value,
+  label,
+}) => (
+  <div className="flex flex-col items-center">
+    <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg bg-pj-gold/10 border border-pj-gold/30 flex items-center justify-center">
+      <span className="text-xl md:text-2xl font-bold text-pj-gold">
+        {value.toString().padStart(2, '0')}
+      </span>
+    </div>
+    <span className="text-xs text-pj-blue/70 mt-1 uppercase tracking-wider">
+      {label}
+    </span>
+  </div>
+);
+
 // Countdown Timer Component
 const CountdownTimer: React.FC<{ targetDate: Date }> = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState({
@@ -260,31 +276,15 @@ const CountdownTimer: React.FC<{ targetDate: Date }> = ({ targetDate }) => {
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  const TimeUnit: React.FC<{ value: number; label: string }> = ({
-    value,
-    label,
-  }) => (
-    <div className="flex flex-col items-center">
-      <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg bg-pj-gold/10 border border-pj-gold/30 flex items-center justify-center">
-        <span className="text-xl md:text-2xl font-bold text-pj-gold">
-          {value.toString().padStart(2, '0')}
-        </span>
-      </div>
-      <span className="text-xs text-pj-blue/70 mt-1 uppercase tracking-wider">
-        {label}
-      </span>
-    </div>
-  );
-
   return (
     <div className="flex items-center gap-2 md:gap-3">
-      <TimeUnit value={timeLeft.days} label="Days" />
+      <CountdownTimeUnit value={timeLeft.days} label="Days" />
       <span className="text-pj-gold text-xl font-bold">:</span>
-      <TimeUnit value={timeLeft.hours} label="Hrs" />
+      <CountdownTimeUnit value={timeLeft.hours} label="Hrs" />
       <span className="text-pj-gold text-xl font-bold">:</span>
-      <TimeUnit value={timeLeft.minutes} label="Min" />
+      <CountdownTimeUnit value={timeLeft.minutes} label="Min" />
       <span className="text-pj-gold text-xl font-bold">:</span>
-      <TimeUnit value={timeLeft.seconds} label="Sec" />
+      <CountdownTimeUnit value={timeLeft.seconds} label="Sec" />
     </div>
   );
 };

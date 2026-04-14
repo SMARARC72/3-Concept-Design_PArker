@@ -199,7 +199,7 @@ export default function SignUpPage() {
             ParkerJoe
           </span>
           <span className="text-sm text-pj-gray mt-1 tracking-widest uppercase">
-            Children&apos;s Boutique
+            Premium Boyswear
           </span>
         </Link>
       </div>

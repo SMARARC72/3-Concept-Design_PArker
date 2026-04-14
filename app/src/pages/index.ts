@@ -7,6 +7,7 @@ export { default as NotFoundPage } from './NotFoundPage';
 export { default as StyleLoungePage } from './StyleLoungePage';
 export { default as EventsPage } from './EventsPage';
 export { default as OurStoryPage } from './OurStoryPage';
+export { default as InfoPage } from './InfoPage';
 
 // Auth Pages
 export { LoginPage, SignUpPage, ForgotPasswordPage, ResetPasswordPage } from './auth';

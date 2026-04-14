@@ -32,21 +32,21 @@ const shopDropdownItems = [
 ];
 
 const brandsDropdownItems = [
-  { name: 'Properly Tied', handle: 'properly-tied', image: '/brand-1.jpg' },
-  { name: 'J.Bailey', handle: 'jbailey', image: '/brand-2.jpg' },
-  { name: 'Southern Tide', handle: 'southern-tide', image: '/brand-3.jpg' },
-  { name: 'ParkerJoe', handle: 'parkerjoe', image: '/brand-4.jpg' },
-  { name: 'Little English', handle: 'little-english', image: '/brand-5.jpg' },
-  { name: 'Bailey Boys', handle: 'bailey-boys', image: '/brand-6.jpg' },
+  { name: 'Properly Tied', handle: 'properly-tied', image: '/product-1.jpg' },
+  { name: 'J.Bailey', handle: 'jbailey', image: '/product-2.jpg' },
+  { name: 'Southern Tide', handle: 'southern-tide', image: '/product-3.jpg' },
+  { name: 'ParkerJoe', handle: 'parkerjoe', image: '/founder-story.jpg' },
+  { name: 'Little English', handle: 'little-english', image: '/store-houston.jpg' },
+  { name: 'Bailey Boys', handle: 'bailey-boys', image: '/store-vegas.jpg' },
 ];
 
 const occasionsDropdownItems = [
-  { name: 'Easter', handle: 'easter', image: '/occasion-easter.jpg' },
-  { name: 'Spring', handle: 'spring', image: '/occasion-spring.jpg' },
-  { name: 'Birthday', handle: 'birthday', image: '/occasion-birthday.jpg' },
-  { name: 'Wedding', handle: 'wedding', image: '/occasion-wedding.jpg' },
-  { name: 'Back to School', handle: 'back-to-school', image: '/occasion-school.jpg' },
-  { name: 'Holiday', handle: 'holiday', image: '/occasion-holiday.jpg' },
+  { name: 'Easter', handle: 'easter', image: '/category-dresswear.jpg' },
+  { name: 'Spring', handle: 'spring', image: '/category-apparel.jpg' },
+  { name: 'Birthday', handle: 'birthday', image: '/category-gifts.jpg' },
+  { name: 'Wedding', handle: 'wedding', image: '/founder-story.jpg' },
+  { name: 'Back to School', handle: 'back-to-school', image: '/hero-main.jpg' },
+  { name: 'Holiday', handle: 'holiday', image: '/seasonal-rodeo.jpg' },
 ];
 
 export default function Navigation({ onCartClick }: NavigationProps) {
@@ -190,7 +190,7 @@ export default function Navigation({ onCartClick }: NavigationProps) {
                                 alt={item.name}
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                                  (e.target as HTMLImageElement).src = '/hero-main.jpg';
                                 }}
                               />
                             </div>
@@ -209,6 +209,7 @@ export default function Navigation({ onCartClick }: NavigationProps) {
             {/* Icons */}
             <div ref={iconsRef} className="flex items-center space-x-4">
               <button
+                onClick={() => navigate('/shop')}
                 className={`p-2 rounded-full transition-colors duration-300 ${
                   isScrolled
                     ? 'hover:bg-pj-light-gray text-pj-charcoal'

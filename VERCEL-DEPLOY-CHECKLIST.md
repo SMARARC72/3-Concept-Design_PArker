@@ -56,11 +56,12 @@ VITE_KLAVIYO_PUBLIC_API_KEY=your-key
 VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 
 # AI
-VITE_ANTHROPIC_API_KEY=your-key
+VITE_KIMI_API_KEY=your-kimi-api-key
+VITE_KIMI_API_URL=https://api.moonshot.cn/v1/chat/completions
 
 # App
 VITE_APP_NAME=ParkerJoe
-VITE_APP_URL=https://your-domain.vercel.app
+VITE_APP_URL=https://3-concept-design-p-arker.vercel.app
 ```
 
 ### Step 4: Deploy

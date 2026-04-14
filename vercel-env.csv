@@ -5,6 +5,7 @@ VITE_SHOPIFY_STORE_DOMAIN,your-store.myshopify.com
 VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN,your-storefront-access-token
 VITE_KLAVIYO_PUBLIC_API_KEY,your-klaviyo-public-api-key
 VITE_GA4_MEASUREMENT_ID,G-XXXXXXXXXX
-VITE_ANTHROPIC_API_KEY,your-anthropic-api-key
+VITE_KIMI_API_KEY,your-kimi-api-key
+VITE_KIMI_API_URL,https://api.moonshot.cn/v1/chat/completions
 VITE_APP_NAME,ParkerJoe
-VITE_APP_URL,https://parkerjoe.vercel.app
+VITE_APP_URL,https://3-concept-design-p-arker.vercel.app

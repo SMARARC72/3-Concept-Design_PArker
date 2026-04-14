@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Instagram, Facebook, MapPin, Mail, Phone } from 'lucide-react';
 
 const footerLinks = {
@@ -34,22 +35,17 @@ const socialLinks = [
 export default function Footer() {
   return (
     <footer className="bg-pj-navy text-white">
-      {/* Main Footer */}
       <div className="w-full px-6 lg:px-12 py-16 lg:py-20">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Brand Column */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-8 lg:mb-0">
-            <a href="/" className="inline-block mb-6">
-              <span className="font-display text-3xl font-semibold">
-                ParkerJoe
-              </span>
-            </a>
+            <Link to="/" className="inline-block mb-6">
+              <span className="font-display text-3xl font-semibold">ParkerJoe</span>
+            </Link>
             <p className="text-white/60 text-sm leading-relaxed mb-6 max-w-xs">
               A premium, curated boys-only retail concept built to make boys feel
               seen, styled, and celebrated.
             </p>
-            
-            {/* Social Links */}
+
             <div className="flex gap-4">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
@@ -69,73 +65,53 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Shop Links */}
           <div>
-            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">
-              Shop
-            </h4>
+            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">Shop</h4>
             <ul className="space-y-3">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-white/60 text-sm hover:text-white transition-colors"
-                  >
+                  <Link to={link.href} className="text-white/60 text-sm hover:text-white transition-colors">
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Support Links */}
           <div>
-            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">
-              Support
-            </h4>
+            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">Support</h4>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-white/60 text-sm hover:text-white transition-colors"
-                  >
+                  <Link to={link.href} className="text-white/60 text-sm hover:text-white transition-colors">
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Company Links */}
           <div>
-            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">
-              Company
-            </h4>
+            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">Company</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-white/60 text-sm hover:text-white transition-colors"
-                  >
+                  <Link to={link.href} className="text-white/60 text-sm hover:text-white transition-colors">
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact Info */}
           <div>
-            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">
-              Contact
-            </h4>
+            <h4 className="font-medium text-sm tracking-widest uppercase mb-4">Contact</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-pj-gold mt-0.5 flex-shrink-0" />
                 <span className="text-white/60 text-sm">
-                  2400 University Blvd<br />
+                  2400 University Blvd
+                  <br />
                   Houston, TX 77005
                 </span>
               </li>
@@ -162,32 +138,22 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-white/10">
         <div className="w-full px-6 lg:px-12 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-white/50 text-sm">
-              © {new Date().getFullYear()} ParkerJoe. All rights reserved.
+              Copyright {new Date().getFullYear()} ParkerJoe. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <a
-                href="/privacy"
-                className="text-white/50 text-sm hover:text-white transition-colors"
-              >
+              <Link to="/privacy" className="text-white/50 text-sm hover:text-white transition-colors">
                 Privacy Policy
-              </a>
-              <a
-                href="/terms"
-                className="text-white/50 text-sm hover:text-white transition-colors"
-              >
+              </Link>
+              <Link to="/terms" className="text-white/50 text-sm hover:text-white transition-colors">
                 Terms of Service
-              </a>
-              <a
-                href="/accessibility"
-                className="text-white/50 text-sm hover:text-white transition-colors"
-              >
+              </Link>
+              <Link to="/accessibility" className="text-white/50 text-sm hover:text-white transition-colors">
                 Accessibility
-              </a>
+              </Link>
             </div>
           </div>
         </div>
